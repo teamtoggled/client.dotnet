@@ -7,20 +7,18 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Toggled.Client
 {
-    public class ServiceUtils
+    internal sealed class ServiceUtils
     {
         private static readonly JwtSecurityTokenHandler JwtTokenHandler = new JwtSecurityTokenHandler();
 
-        public string Endpoint { get; }
+        internal string Endpoint {get; private set;}
 
-        public string AccessKey { get; }
+        private readonly string _accessKey;
 
-        public ServiceUtils(string connectionString)
-        {
-            (Endpoint, AccessKey) = ParseConnectionString(connectionString);
-        }
+        internal ServiceUtils(string connectionString) =>
+            (Endpoint, _accessKey) = ParseConnectionString(connectionString);
 
-        public string GenerateAccessToken(string audience, string userId, TimeSpan? lifetime = null)
+        internal string GenerateAccessToken(string audience, string userId, TimeSpan? lifetime = null)
         {
             IEnumerable<Claim> claims = null;
             if (userId != null)
@@ -34,11 +32,11 @@ namespace Toggled.Client
             return GenerateAccessTokenInternal(audience, claims, lifetime ?? TimeSpan.FromHours(1));
         }
 
-        public string GenerateAccessTokenInternal(string audience, IEnumerable<Claim> claims, TimeSpan lifetime)
+        private string GenerateAccessTokenInternal(string audience, IEnumerable<Claim> claims, TimeSpan lifetime)
         {
             var expire = DateTime.UtcNow.Add(lifetime);
 
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AccessKey));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_accessKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var token = JwtTokenHandler.CreateJwtSecurityToken(
@@ -55,7 +53,7 @@ namespace Toggled.Client
         private const string EndpointProperty = "endpoint";
         private const string AccessKeyProperty = "accesskey";
 
-        internal static (string, string) ParseConnectionString(string connectionString)
+        private static (string, string) ParseConnectionString(string connectionString)
         {
             var properties = connectionString.Split(PropertySeparator, StringSplitOptions.RemoveEmptyEntries);
             if (properties.Length > 1)
