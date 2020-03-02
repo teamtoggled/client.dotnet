@@ -64,11 +64,6 @@ namespace Toggled.Client
             StartListeningForEvents().GetAwaiter().GetResult();
         }
 
-        //~ToggledClient()
-        //{
-         //   DisposeAsync().GetAwaiter().GetResult();
-        //}
-
         private async Task StartListeningForEvents()
         {
             Console.WriteLine("Anchors away");
