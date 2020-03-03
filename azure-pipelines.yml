@@ -33,8 +33,9 @@ steps:
   displayName: 'nuget push'
   inputs:
     command: 'push'
-    api-key: '$(NugetOrgApiKey)'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
-    source: 'https://api.nuget.org/v3/index.json'
+    nuGetFeedType: 'external'
+    externalEndpoint: 'ToggledNugetOrg'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'    
     versioningScheme: 'off'
     allowPackageConflicts: true
+    nobuild: true
