@@ -36,7 +36,7 @@ steps:
   inputs:
     command: 'pack'
     arguments: '--configuration $(buildConfiguration)'
-    packagesToPack: 'toggled.dotnet.csproj'
+    packagesToPack: 'client.dotnet.csproj'
     nobuild: true
     versioningScheme: 'off'
 
