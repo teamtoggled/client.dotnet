@@ -29,24 +29,12 @@ steps:
     nobuild: true
     versioningScheme: 'off'
 
-#- task: NuGetCommand@2
-#  displayName: 'nuget push'
-#  inputs:
-#    command: 'push'
-#    feedsToUse: 'select'
-#    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
-#    nuGetFeedType: 'internal'
-#    publishVstsFeed: '4495e1a4-9944-44b0-87b6-7fe49533461a/3bc0b4bb-c66b-4247-a614-827165b06c64'
-#    versioningScheme: 'off'
-#    allowPackageConflicts: true
-
-- task: NuGetAuthenticate@0
-  inputs:
-    nuGetServiceConnections: 'ToggledNugetOrg'
 - task: NuGetCommand@2
+  displayName: 'nuget push'
   inputs:
-    command: push
+    command: 'push'
+    api-key: '$(NugetOrgApiKey)'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
-    nuGetFeedType: external
+    source: 'https://api.nuget.org/v3/index.json'
     versioningScheme: 'off'
     allowPackageConflicts: true
