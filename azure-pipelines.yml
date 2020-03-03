@@ -30,12 +30,23 @@ steps:
     versioningScheme: 'off'
 
 - task: NuGetCommand@2
-  displayName: 'nuget push'
+  displayName: 'nuget push (Azure feed)'
   inputs:
     command: 'push'
-    nuGetFeedType: 'external'
-    externalEndpoint: 'ToggledNugetOrg'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'    
+    feedsToUse: 'select'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    nuGetFeedType: 'internal'
+    publishVstsFeed: '4495e1a4-9944-44b0-87b6-7fe49533461a/3bc0b4bb-c66b-4247-a614-827165b06c64'
     versioningScheme: 'off'
     allowPackageConflicts: true
-    nobuild: true
+
+#- task: NuGetCommand@2
+#  displayName: 'nuget push (nuget.org)'
+#  inputs:
+#    command: 'push'
+#    nuGetFeedType: 'external'
+#    externalEndpoint: 'ToggledNugetOrg'
+#    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'    
+#    versioningScheme: 'off'
+#    allowPackageConflicts: true
+#    nobuild: true
