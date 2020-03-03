@@ -2,6 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+
+    <PackageId>Toggled.Client</PackageId>
+    <Version>1.0.0-alpha1</Version>
+    <Authors>Toggled Team</Authors>
+    <Description>The .NET SDK for Toggled - Feature toggling, made simple.</Description>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
