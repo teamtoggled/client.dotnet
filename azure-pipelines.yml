@@ -16,8 +16,7 @@ steps:
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
 
-- task: NuGetCommand@2
-  inputs:
+- task: DotNetCoreCLI@2
+  inputs: 
     command: 'pack'
-    packagesToPack: '**/*.csproj'
-    packDestination: '$(Build.ArtifactStagingDirectory)'
+    outputDir: '$(Build.ArtifactStagingDirectory)'
