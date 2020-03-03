@@ -3,25 +3,16 @@
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
-# Props: https://medium.com/@dan.cokely/creating-nuget-packages-in-azure-devops-with-azure-pipelines-and-yaml-d6fa30f0f15e
-
-# the build will trigger on any changes to the master branch
 trigger:
 - master
 
-# the build will run on a Microsoft hosted agent, using the lastest Windows VM Image
 pool:
   vmImage: 'windows-latest'
 
-# these variables are available throughout the build file
-# just the build configuration is defined, in this case we are building Release packages
 variables:
   buildConfiguration: 'Release'
 
-#The build has 3 seperate tasks run under 1 step
 steps:
-
-# The first task is the dotnet command build, pointing to our csproj file
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
   inputs:
@@ -29,28 +20,18 @@ steps:
     arguments: '--configuration $(buildConfiguration)'
     projects: 'client.dotnet.csproj'
 
-# The second task is dotnet pack command again pointing to the csproj file
-# The nobuild means the project will not be compiled before running pack, because its already built in above step
-- task: DotNetCoreCLI@2
-  displayName: "dotnet pack"
+- task: NuGetCommand@2
   inputs:
     command: 'pack'
-    arguments: '--configuration $(buildConfiguration)'
-    packagesToPack: 'client.dotnet.csproj'
-    nobuild: true
+    packagesToPack: '**/*.csproj'
+    configuration: '$(buildConfiguration)'
     versioningScheme: 'off'
 
-# The last task is a nuget command, nuget push
-# This will push any .nupkg files to the 'TestFeed' artifact feed
-# allowPackageConflicts allows us to build the same version and not throw an error when trying to push
-# instead it just ingores the latest package unless the version changes
 - task: NuGetCommand@2
-  displayName: 'nuget push'
   inputs:
     command: 'push'
-    feedsToUse: 'select'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
     nuGetFeedType: 'internal'
-    publishVstsFeed: 'ToggledDev'
-    versioningScheme: 'off'
+    publishVstsFeed: '4495e1a4-9944-44b0-87b6-7fe49533461a/3bc0b4bb-c66b-4247-a614-827165b06c64'
     allowPackageConflicts: true
+    versioningScheme: 'off'
