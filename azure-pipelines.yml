@@ -20,18 +20,22 @@ steps:
     arguments: '--configuration $(buildConfiguration)'
     projects: 'client.dotnet.csproj'
 
-- task: NuGetCommand@2
+- task: DotNetCoreCLI@2
+  displayName: "dotnet pack"
   inputs:
     command: 'pack'
-    packagesToPack: '**/*.csproj'
-    configuration: '$(buildConfiguration)'
+    arguments: '--configuration $(buildConfiguration)'
+    packagesToPack: 'client.dotnet.csproj'
+    nobuild: true
     versioningScheme: 'off'
 
 - task: NuGetCommand@2
+  displayName: 'nuget push'
   inputs:
     command: 'push'
+    feedsToUse: 'select'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
     nuGetFeedType: 'internal'
     publishVstsFeed: '4495e1a4-9944-44b0-87b6-7fe49533461a/3bc0b4bb-c66b-4247-a614-827165b06c64'
-    allowPackageConflicts: true
     versioningScheme: 'off'
+    allowPackageConflicts: true
