@@ -6,7 +6,7 @@ namespace Toggled.Client
 {
     public interface IToggledClient 
     {
-        bool GetFeatureValue();
+        bool GetFeatureValue(string featureName);
     }
 
     public class ToggledClient : IToggledClient
@@ -70,6 +70,6 @@ namespace Toggled.Client
             await _connection.StartAsync();
         }
 
-        public bool GetFeatureValue() => _featureValue;
+        public bool GetFeatureValue(string featureName) => _featureValue;
     }
 }
