@@ -1,9 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
+using Newtonsoft.Json;
 
 namespace Toggled.Client
 {
+    public class ToggledSignalRMessage
+    {
+        public string FeatureToggleName {get; set;}
+        public bool NewValue {get; set;}        
+
+        // TODO: It would be nice to have a UpdatedDateTimeUtc to ensure that we don't overwrite
+        // if a message arrives out of sequence.
+    }
+
     public class ToggledClient : IToggledClient
     {
         private readonly HubConnection _connection;
@@ -21,13 +32,14 @@ namespace Toggled.Client
             return $"{endpoint}/client/?hub={hubName}";
         }
 
-        private bool _featureValue;
+        private Dictionary<string, bool> FeatureValueDictInternal {get; set;}
 
         public ToggledClient(string connectionString, string hubName, string clientNameOrMachineName)
         {
             _connectionString = connectionString;
             _hubName = hubName;
             _clientNameOrMachineName = clientNameOrMachineName;
+            FeatureValueDictInternal = new Dictionary<string, bool>();
             
             var serviceUtils = new ServiceUtils(_connectionString);
 
@@ -44,7 +56,7 @@ namespace Toggled.Client
 
             _connection.Closed += async (error) =>
             {
-                Console.WriteLine("Connection is borked. Trying to reconnect...");
+                Console.WriteLine("The connection to the Toggled SignalR service has been lost. Trying to reconnect...");
                 await Task.Delay(new Random().Next(0,5) * 1000);
                 await _connection.StartAsync();
             };
@@ -52,8 +64,21 @@ namespace Toggled.Client
             _connection.On<string, string>("SendMessage",
                 (string server, string message) =>
                 {
-                    _featureValue = !_featureValue;
                     Console.WriteLine($"[{DateTime.Now.ToString()}] Received message from server {server}: {message}");
+
+                    var signalREvent = JsonConvert.DeserializeObject<ToggledSignalRMessage>(message);
+
+                    if(FeatureValueDictInternal.ContainsKey(signalREvent.FeatureToggleName))
+                    {
+                        Console.WriteLine("Updating feature switch value.");
+                        FeatureValueDictInternal[signalREvent.FeatureToggleName] = signalREvent.NewValue;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Adding new feature switch to dictionary.");
+                        FeatureValueDictInternal.Add(signalREvent.FeatureToggleName, signalREvent.NewValue);
+                    }
+                    
                 });
 
             StartListeningForEvents().GetAwaiter().GetResult();
@@ -65,6 +90,12 @@ namespace Toggled.Client
             await _connection.StartAsync();
         }
 
-        public bool GetFeatureValue(string featureName) => _featureValue;
+        public bool GetFeatureValue(string featureName)
+        {
+            if(FeatureValueDictInternal.ContainsKey(featureName))
+                return FeatureValueDictInternal[featureName];
+
+            throw new Exception($"There was no feature switch in the dictionary called {featureName}.");
+        }
     }
 }
